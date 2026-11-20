@@ -1,0 +1,24 @@
+# --- Environment ---
+.env
+.venv/
+venv/
+
+# --- Python ---
+__pycache__/
+*.pyc
+
+# --- Node (web UI tests) ---
+node_modules/
+
+# --- VSCode ---
+.vscode/
+
+# --- Build artifacts ---
+dist/
+build/
+*.spec
+*.zip
+*.mp4
+# AI Provider configuration file with secret keys
+ai_providers.json
+user_profile.json
