@@ -98,5 +98,20 @@ class TestInstructionsAndControls(unittest.TestCase):
         multi.set_custom_instructions("Be extremely concise.")
         self.assertEqual(self.ctx.persistent_context['custom_instructions'], "Be extremely concise.")
 
+    def test_prompts_enforce_job_description_and_candidate_level(self):
+        prompt = get_interview_answer_prompt("What is dynamic programming?", self.ctx)
+        self.assertIn("COMPLETE JOB DESCRIPTION/REQUIREMENTS:", prompt)
+        self.assertIn("Pass the interview", prompt)
+        self.assertIn("MANDATORY CONTEXT ALIGNMENT:", prompt)
+        self.assertIn("CALIBRATE TECHNICAL DEPTH:", prompt)
+
+    def test_window_manager_hotkey_map_has_emergency_restart(self):
+        import inspect
+        import window_manager
+        source = inspect.getsource(window_manager.WindowManager._start_hotkey_listener_thread)
+        self.assertIn("'<alt>+<shift>+r': on_emergency_restart", source)
+        self.assertIn("def on_emergency_restart():", source)
+
 if __name__ == '__main__':
     unittest.main()
+

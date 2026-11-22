@@ -173,12 +173,13 @@ GENERAL APPROACH:
     
     # Enhanced Instructions with comprehensive markdown formatting
     prompt_parts.append("""
-🎯 RESPONSE INSTRUCTIONS:
-- FOCUS ONLY ON THE CURRENT QUESTION ABOVE
-- Use the COMPLETE candidate background from the persistent context only if required (full resume and job description)
-- The conversation history is for context only - don't re-answer previous questions
-- Be authentic and specific using the candidate's REAL experience and projects
-- Write as if you ARE the candidate speaking directly to the interviewer
+🎯 MANDATORY CONTEXT & RESPONSE INSTRUCTIONS:
+- FOCUS DIRECTLY ON ANSWERING THE CURRENT QUESTION ABOVE.
+- MANDATORY CONTEXT ALIGNMENT: You MUST strictly align your response with the candidate's target role, background, and the COMPLETE JOB DESCRIPTION / EXAM REQUIREMENTS in the persistent context above.
+- CALIBRATE TECHNICAL DEPTH: Accurately match the candidate's true level (e.g. if the Job Description / Role indicates an undergraduate/bachelor candidate, high school graduate, or scholarship exam, explain concepts clearly from first principles with simple analogies; do NOT lecture like a 10-year senior enterprise architect unless requested).
+- CUSTOM INSTRUCTIONS SUPREMACY: If the candidate provided Custom Instructions (above), THOSE INSTRUCTIONS OVERRIDE ANY DEFAULT TEMPLATE OR GENERAL GUIDELINE (e.g., if asked for brevity, 2-minute limits, simple examples, or specific language, follow that strictly).
+- FIRST-PERSON PERSONA: Write authentically in the first person ("I", "my") as the candidate speaking directly to the interviewer.
+- The conversation history is for context only - don't re-answer previous questions.
 
 📝 MANDATORY STRUCTURED MARKDOWN FORMATTING:
 - You MUST format your response using proper markdown structure. Choose the appropriate template based on question type:

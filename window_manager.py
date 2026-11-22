@@ -1011,6 +1011,20 @@ class WindowManager:
             self.send_interview_command("reset_interview")
             return False
 
+        def on_emergency_restart():
+            """Emergency restart entire application (Alt+Shift+R) when hung or frozen"""
+            print("🚨 EMERGENCY RESTART TRIGGERED via Alt+Shift+R!")
+            try:
+                import subprocess, sys, os, time
+                python_exe = sys.executable
+                main_script = os.path.abspath("main.py")
+                subprocess.Popen([python_exe, main_script], cwd=os.getcwd(), close_fds=True)
+                time.sleep(0.3)
+                os._exit(0)
+            except Exception as e:
+                print(f"❌ Failed to execute emergency restart: {e}")
+            return False
+
         # Add single press scroll handlers for initial response
         def on_scroll_up_start():
             """Start continuous scroll up (Alt+Up)"""
@@ -1085,6 +1099,7 @@ class WindowManager:
             '<alt>+i': on_move_up,             # Move window up (SWAPPED)
             '<alt>+j': on_move_down,           # Move window down (SWAPPED)
             '<alt>+o': on_reset_interview,     # Reset interview session
+            '<alt>+<shift>+r': on_emergency_restart,  # Emergency App Restart (Alt+Shift+R)
             '<alt>+<up>': on_scroll_up_start,  # Start continuous scroll up (NEW)
             '<alt>+<down>': on_scroll_down_start,  # Start continuous scroll down (NEW)
         }

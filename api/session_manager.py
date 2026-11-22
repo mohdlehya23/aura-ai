@@ -31,6 +31,7 @@ class InterviewSession:
         }
         self.transcript_buffer: str = ""
         self.silence_timer: Optional[asyncio.Task] = None
+        self.active_ai_task: Optional[asyncio.Task] = None
         self.last_activity_time: float = time.time()
 
     def _touch(self):
@@ -235,8 +236,11 @@ class InterviewSession:
         self._touch()
         print(f"🔄 Session {self.session_id}: Resetting interview context...")
         self.transcript_buffer = ""
-        if self.silence_timer:
+        if self.silence_timer and not self.silence_timer.done():
             self.silence_timer.cancel()
+        if self.active_ai_task and not self.active_ai_task.done():
+            self.active_ai_task.cancel()
+            print(f"🛑 Session {self.session_id}: Active AI answer generation cancelled.")
         
         if self.llm_manager:
             self.llm_manager.reset_context()
@@ -317,7 +321,11 @@ class InterviewSession:
             
             async def delayed_processing():
                 await asyncio.sleep(1.5)
-                await self._process_aggregated_transcript()
+                self.active_ai_task = asyncio.create_task(self._process_aggregated_transcript())
+                try:
+                    await self.active_ai_task
+                except asyncio.CancelledError:
+                    print(f"🛑 AI task cancelled for session {self.session_id}")
             
             self.silence_timer = asyncio.create_task(delayed_processing())
 
