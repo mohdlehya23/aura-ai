@@ -11,7 +11,7 @@ import webview
 import time
 import tkinter as tk
 import platform
-from typing import Optional
+from typing import Optional, Dict, Any
 from threading import Thread
 from pynput import keyboard
 from dotenv import dotenv_values
