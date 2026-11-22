@@ -3,7 +3,7 @@ import asyncio
 import base64
 import time
 from typing import Dict, Optional
-from fastapi import WebSocket
+from fastapi import WebSocket  # type: ignore
 
 from .utils import send_json
 from services.llm_service import MultiLLMManager

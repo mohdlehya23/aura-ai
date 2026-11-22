@@ -1,0 +1,9 @@
+# Pyrefly Configuration for Aura AI
+python-interpreter-path = "venv/Scripts/python.exe"
+search-path = [
+    ".",
+    "venv/Lib/site-packages"
+]
+site-packages-path = [
+    "venv/Lib/site-packages"
+]

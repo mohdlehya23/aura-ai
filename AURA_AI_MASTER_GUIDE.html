@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل الاستخدام الشامل والاحترافي | Aura-AI Stealth Assistant</title>
+    <style>
+        :root {
+            --bg-canvas: #07090e;
+            --bg-surface: #0c1017;
+            --bg-surface-elevated: #131924;
+            --bg-card: rgba(19, 25, 36, 0.7);
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-medium: rgba(255, 255, 255, 0.16);
+            --border-focus: #38bdf8;
+            --text-pure: #f8fafc;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-cyan: #38bdf8;
+            --accent-emerald: #10b981;
+            --accent-indigo: #6366f1;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --accent-purple: #a855f7;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Cairo', 'Noto Sans Arabic', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            font-family: var(--font-family);
+            line-height: 1.7;
+            padding: 0;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.04) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(99, 102, 241, 0.04) 0%, transparent 40%);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 24px 100px;
+        }
+
+        /* Hero Header */
+        .hero {
+            text-align: center;
+            padding: 50px 20px 40px;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .badge-stealth {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: var(--text-pure);
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 800px;
+            margin: 0 auto 30px;
+        }
+
+        /* Quick Search Bar */
+        .search-container {
+            max-width: 650px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            border-radius: 12px;
+            background: var(--bg-surface-elevated);
+            border: 1.5px solid var(--border-medium);
+            color: var(--text-pure);
+            font-size: 1rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        /* Navigation Pills */
+        .nav-pills {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+
+        .nav-pill {
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+            padding: 8px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .nav-pill:hover, .nav-pill.active {
+            background: var(--accent-cyan);
+            color: #07090e;
+            border-color: var(--accent-cyan);
+            transform: translateY(-1px);
+        }
+
+        /* Section Styling */
+        section {
+            margin-bottom: 60px;
+            scroll-margin-top: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .section-icon {
+            font-size: 1.8rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--text-pure);
+        }
+
+        /* Feature Cards Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 24px;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: var(--border-medium);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .card.accent-cyan { border-top: 4px solid var(--accent-cyan); }
+        .card.accent-emerald { border-top: 4px solid var(--accent-emerald); }
+        .card.accent-indigo { border-top: 4px solid var(--accent-indigo); }
+        .card.accent-amber { border-top: 4px solid var(--accent-amber); }
+        .card.accent-rose { border-top: 4px solid var(--accent-rose); }
+        .card.accent-purple { border-top: 4px solid var(--accent-purple); }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .card-header h3 {
+            font-size: 1.25rem;
+            color: var(--text-pure);
+            font-weight: 700;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 14px;
+        }
+
+        /* Hotkey Tags / Badges */
+        kbd {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e293b;
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-bottom: 2px solid rgba(56, 189, 248, 0.5);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            margin: 0 4px;
+            direction: ltr;
+        }
+
+        /* Hotkey Table */
+        .hotkey-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 16px 0;
+        }
+
+        .hotkey-table th {
+            background: var(--bg-surface-elevated);
+            color: var(--text-pure);
+            padding: 14px 18px;
+            text-align: right;
+            font-size: 0.9rem;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border-medium);
+        }
+
+        .hotkey-table td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+        }
+
+        .hotkey-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .hotkey-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-pure);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .tag-stealth { background: rgba(56, 189, 248, 0.15); color: var(--accent-cyan); }
+        .tag-ai { background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo); }
+        .tag-vision { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+        .tag-emergency { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }
+        .tag-nav { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+
+        /* Scenario Box */
+        .scenario-box {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .scenario-header {
+            padding: 18px 24px;
+            background: rgba(255, 255, 255, 0.02);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .scenario-header:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .scenario-header.active {
+            border-bottom-color: var(--border-subtle);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .scenario-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-pure);
+        }
+
+        .scenario-content {
+            padding: 24px;
+            display: none;
+        }
+
+        .scenario-content.show {
+            display: block;
+        }
+
+        /* Step List */
+        .step-list {
+            list-style: none;
+            margin: 16px 0;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            position: relative;
+            padding-right: 42px;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            counter-increment: step-counter;
+            position: absolute;
+            right: 0;
+            top: 2px;
+            width: 26px;
+            height: 26px;
+            background: var(--accent-cyan);
+            color: #07090e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        .step-list li strong {
+            color: var(--text-pure);
+        }
+
+        /* Callout / Alerts */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin: 18px 0;
+            font-size: 0.95rem;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .alert-info {
+            background: rgba(56, 189, 248, 0.08);
+            border-right: 4px solid var(--accent-cyan);
+            color: #bae6fd;
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.08);
+            border-right: 4px solid var(--accent-amber);
+            color: #fde68a;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.08);
+            border-right: 4px solid var(--accent-emerald);
+            color: #a7f3d0;
+        }
+
+        .alert-danger {
+            background: rgba(244, 63, 94, 0.08);
+            border-right: 4px solid var(--accent-rose);
+            color: #fecdd3;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        /* Back to top button */
+        .btn-top {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            background: var(--accent-cyan);
+            color: #07090e;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+            border: none;
+            opacity: 0.8;
+            transition: all 0.2s ease;
+            z-index: 1000;
+        }
+
+        .btn-top:hover {
+            opacity: 1;
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="إلى الأعلى">↑</button>
+
+    <div class="container">
+        <!-- Hero Header -->
+        <header class="hero">
+            <div class="badge-stealth">🛡️ STEALTH PRO CO-PILOT • v1.1.2</div>
+            <h1>دليل أداة Aura-AI الشامل</h1>
+            <p>المساعد الذكي الخفي والمباشر للمقابلات الشفوية، الامتحانات البرمجية، واختبارات القبول والمنح الجامعية — مصمم للتخفي التام والسرعة الفائقة.</p>
+            
+            <div class="search-container">
+                <input type="text" id="guide-search" class="search-input" placeholder="🔍 ابحث عن أي ميزة، اختصار (مثال: Alt+O، Web Search)، أو سيناريو...">
+            </div>
+
+            <div class="nav-pills">
+                <a href="#quickstart" class="nav-pill">🚀 البدء السريع</a>
+                <a href="#features" class="nav-pill">✨ المميزات الشاملة</a>
+                <a href="#hotkeys" class="nav-pill">⌨️ قاموس الاختصارات</a>
+                <a href="#scenarios" class="nav-pill">🎯 السيناريوهات العملية</a>
+                <a href="#emergency" class="nav-pill">🚨 حل المشاكل والطوارئ</a>
+                <a href="#pro-tips" class="nav-pill">💡 نصائح للمحترفين</a>
+            </div>
+        </header>
+
+        <!-- Section 1: Quickstart -->
+        <section id="quickstart">
+            <div class="section-header">
+                <span class="section-icon">🚀</span>
+                <h2>دليل البدء السريع (من الصفر إلى المقابلة)</h2>
+            </div>
+
+            <div class="card accent-cyan">
+                <ol class="step-list">
+                    <li>
+                        <strong>تشغيل الأداة:</strong> 
+                        انقر نقراً مزدوجاً على <code>run.bat</code> أو شغل <code>silent_run.vbs</code> لتشغيل الأداة بدون أي شاشة طرفية (Terminal) مرئية.
+                    </li>
+                    <li>
+                        <strong>تعبئة الملف الشخصي (Tab 1: Your Profile):</strong>
+                        أدخل اسمك، الشركة/الجهة المستهدفة (Target Company/Institution)، المسمى (Target Role)، والصق السيرة الذاتية (Resume) ومتطلبات الاختبار في (Job Description).
+                    </li>
+                    <li>
+                        <strong>إدخال التعليمات المخصصة (Custom AI Instructions):</strong>
+                        اكتب توجيهاتك الصريحة للمودل (مثل: <em>"أجب في نقاط مركزة تحت دقيقتين وبصفة طالب بكالوريوس ولا تعقد الأمور، وأجب بالعربية إذا كان السؤال بالعربية"</em>).
+                    </li>
+                    <li>
+                        <strong>اختيار الموديل وإعدادات التفكير والبحث (Tab 2: AI Setup):</strong>
+                        اختر <code>Gemini</code> وموديل <code>gemini-2.5-flash</code> للمحادثة والرؤية (الأسرع بمعدل 0.5–1.5 ثانية). حدد هل تريد تشغيل التفكير (Thinking) أو البحث في الويب (Web Search).
+                    </li>
+                    <li>
+                        <strong>فحص الأجهزة (Pre-Flight Check):</strong>
+                        اضغط <em>Proceed to Device Setup</em> للتأكد من المايكروفون، اتصال Deepgram، واستجابة السيرفر المحلي، ثم اضغط <em>Start Interview</em>.
+                    </li>
+                    <li>
+                        <strong>أثناء المقابلة:</strong>
+                        استخدم دائماً <strong>الاختصارات العامة (Global Hotkeys)</strong> للتحكم دون الحاجة للضغط بالماوس على النافذة لتفادي كشف الـ Focus في برامج المراقبة!
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 2: Features -->
+        <section id="features">
+            <div class="section-header">
+                <span class="section-icon">✨</span>
+                <h2>المميزات الرئيسية والقدرات التقنية</h2>
+            </div>
+
+            <div class="grid-2">
+                <!-- Feature 1 -->
+                <div class="card accent-cyan">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">🛡️</span>
+                        <h3>نظام التخفي التام (Stealth Protection)</h3>
+                    </div>
+                    <p>باستخدام واجهات برمجة ويندوز الأصلية <code>SetWindowDisplayAffinity</code> مع بارامتر <code>WDA_EXCLUDEFROMCAPTURE</code>، تصبح نافذة الأداة سوداء بالكامل أو مخفية كلياً لبرامج مشاركة الشاشة ومراقبة الامتحانات.</p>
+                    <div class="alert alert-info">
+                        <strong>محمية بالكامل ضد:</strong> Zoom, Microsoft Teams, Google Meet, OBS, Discord, HackerRank, Mettle, TestGorilla.
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="card accent-emerald">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">🧠</span>
+                        <h3>التحكم في التفكير الموسع (Thinking / Reasoning)</h3>
+                    </div>
+                    <p>مفتاح تحكم فوري يتيح لك تشغيل أو إيقاف ميزة التفكير الموسع في الموديل بنقرة واحدة أو اختصار:</p>
+                    <ul style="padding-right: 20px; color: var(--text-secondary); margin-bottom: 10px;">
+                        <li><strong>Off (إيقاف):</strong> استجابة فائقة السرعة (0.5 – 1.5 ثانية) مثالية للمقابلات الشفوية المباشرة.</li>
+                        <li><strong>Low / Medium / High:</strong> تفعيل التفكير الداخلي لفحص الحالات الحدية (Edge Cases) في مسائل الخوارزميات المعقدة.</li>
+                    </ul>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="card accent-indigo">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">🌐</span>
+                        <h3>البحث في الويب (Google Search Grounding)</h3>
+                    </div>
+                    <p>ميزة تفعيل البحث اللحظي في الويب لجلب أحدث التوثيقات البرمجية، إصدارات المكتبات، أو الأخبار والمعلومات الحالية من قوقل مباشرة مع إمكانية إيقافها لتفادي أي استهلاك للوقت أثناء الأسئلة النظرية.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="card accent-amber">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">🎯</span>
+                        <h3>التعليمات المخصصة والتوافق الصارم</h3>
+                    </div>
+                    <p>حقن مباشر للتعليمات الشخصية كأولوية قصوى (Supreme Priority) تلغي أي قوالب جامدة للموديل، وتفرض عليه ضبط العمق التقني بحسب مستواك المذكور في الـ Job Description (طالب بكالوريوس، خبير، إلخ).</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="card accent-purple">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">👁️</span>
+                        <h3>الرؤية الذكية وفحص الشاشات (Vision AI Mode)</h3>
+                    </div>
+                    <p>التقاط لقطات شاشة متعددة بضغطة زر وتجميعها في رتل (Queue)، ثم تحليل المسائل البرمجية والخيارات (MCQ) وعرض كود الحل الجاهز باللغة المحددة (Python, C++, Java, JS, SQL).</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="card accent-rose">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">🚨</span>
+                        <h3>إلغاء التعليق وإعادة التشغيل الطارئ</h3>
+                    </div>
+                    <p>اختصارات عالمية فورية تسمح لك بفك تعليق الموديل وإلغاء توليد السؤال فوراً بـ <kbd>Alt+O</kbd>، أو إعادة تشغيل التطبيق بالكامل في أقل من ثانية بـ <kbd>Alt+Shift+R</kbd> عند حدوث أي تجمد.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Hotkeys -->
+        <section id="hotkeys">
+            <div class="section-header">
+                <span class="section-icon">⌨️</span>
+                <h2>قاموس الاختصارات الشامل (Global Hotkeys)</h2>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">
+                جميع الاختصارات التالية هي <strong>اختصارات عالمية (Global)</strong> وتعمل من أي نافذة أو تطبيق دون الحاجة للتركيز على الأداة:
+            </p>
+
+            <table class="hotkey-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">الاختصار</th>
+                        <th style="width: 20%;">الفئة</th>
+                        <th style="width: 35%;">الوظيفة</th>
+                        <th style="width: 20%;">ملاحظات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><kbd>Alt+X</kbd></td>
+                        <td><span class="tag tag-stealth">التخفي والتعتيم</span></td>
+                        <td>تفعيل / إلغاء وضع الشبح (Ghost Mode)</td>
+                        <td>يجعل الضغطات بالماوس تمر من خلال النافذة لما خلفها</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+Z</kbd></td>
+                        <td><span class="tag tag-stealth">التخفي والتعتيم</span></td>
+                        <td>إظهار / إخفاء النافذة كلياً (Boss Key)</td>
+                        <td>يخفي الأداة فوراً من الشاشة أو يعيد إظهارها</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+1</kbd></td>
+                        <td><span class="tag tag-stealth">الشفافية</span></td>
+                        <td>ضبط الشفافية على 40% (Ghost HUD)</td>
+                        <td>خلفية شبه شفافة تناسب التراكب فوق الشاشات</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+2</kbd></td>
+                        <td><span class="tag tag-stealth">الشفافية</span></td>
+                        <td>ضبط الشفافية على 70% (Semi-Opaque)</td>
+                        <td>توازن ممتاز بين قراءة الكود ورؤية ما خلف النافذة</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+3</kbd></td>
+                        <td><span class="tag tag-stealth">الشفافية</span></td>
+                        <td>ضبط الشفافية على 100% (Solid)</td>
+                        <td>وضوح كامل وتعتيم تام للخلفية</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+K</kbd></td>
+                        <td><span class="tag tag-stealth">حماية الشاشة</span></td>
+                        <td>تبديل حماية التقاط الشاشة (Stealth Protection)</td>
+                        <td>تفعيل أو تعطيل إخفاء الأداة من لقطات الشاشة</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+Q</kbd></td>
+                        <td><span class="tag tag-ai">موديلات الذكاء</span></td>
+                        <td>التحويل إلى الموديل الأساسي (Primary Model)</td>
+                        <td>الموديل الافتراضي (مثل Gemini 2.5 Flash)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+W</kbd></td>
+                        <td><span class="tag tag-ai">موديلات الذكاء</span></td>
+                        <td>التحويل إلى الموديل الثانوي (Secondary Model)</td>
+                        <td>التبديل إلى موديل بديل فوراً (مثل Groq أو Cerebras)</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+E</kbd></td>
+                        <td><span class="tag tag-ai">موديلات الذكاء</span></td>
+                        <td>الاختيار التلقائي لأفضل وأسرع موديل (Auto-Select)</td>
+                        <td>يفحص صحة وسرعة المزودات ويختار الموديل المتاح</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+T</kbd></td>
+                        <td><span class="tag tag-vision">الرؤية وفحص الكود</span></td>
+                        <td>تبديل موديل الرؤية (Switch Vision Model)</td>
+                        <td>التحويل بين الموديل الأساسي والثانوي للرؤية</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+V</kbd></td>
+                        <td><span class="tag tag-vision">الرؤية وفحص الكود</span></td>
+                        <td>تفعيل / إغلاق طبقة الرؤية (Vision Overlay)</td>
+                        <td>فتح وضع التقاط لقطات الشاشة وتحليل الكود</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+S</kbd></td>
+                        <td><span class="tag tag-vision">الرؤية وفحص الكود</span></td>
+                        <td>التقاط وحفظ سكرين شوت في الرتل (Queue)</td>
+                        <td>يمكنك أخذ حتى 4 لقطات لأجزاء مختلفة من المسألة</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+P</kbd></td>
+                        <td><span class="tag tag-vision">الرؤية وفحص الكود</span></td>
+                        <td>معالجة وتحليل رتل لقطات الشاشة (Process)</td>
+                        <td>يرسل اللقطات للذكاء الاصطناعي لإنتاج الحل</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+R</kbd></td>
+                        <td><span class="tag tag-vision">الرؤية وفحص الكود</span></td>
+                        <td>تفريغ رتل لقطات الشاشة (Clear Queue)</td>
+                        <td>مسح اللقطات الحالية للبدء في مسألة جديدة</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+M</kbd></td>
+                        <td><span class="tag tag-nav">التحكم بالصوت</span></td>
+                        <td>كتم / تشغيل المايكروفون (Mic Mute)</td>
+                        <td>إيقاف إرسال صوتك للأداة عند رغبتك بالحديث للمقابل</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+U</kbd></td>
+                        <td><span class="tag tag-nav">التحكم بالصوت</span></td>
+                        <td>الإيقاف العام الشامل (Universal Pause/Mute)</td>
+                        <td>يوقف معالجة الصوت والذكاء الاصطناعي مؤقتاً</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+O</kbd></td>
+                        <td><span class="tag tag-emergency">فك التعليق والطوارئ</span></td>
+                        <td>تصفير الجلسة وإلغاء السؤال الحالي (Reset Session)</td>
+                        <td>يلغي التوليد العالق فوراً ويعيد المايك للاستماع</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+Shift+R</kbd></td>
+                        <td><span class="tag tag-emergency">فك التعليق والطوارئ</span></td>
+                        <td>إعادة تشغيل فورية للتطبيق بالكامل (Hard Restart)</td>
+                        <td>يغلق العملية المتجمدة ويفتح التطبيق نظيفاً بـ 0.5 ثانية</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+↑</kbd> / <kbd>Alt+↓</kbd></td>
+                        <td><span class="tag tag-nav">التمرير والحركة</span></td>
+                        <td>تمرير المحتوى للأعلى أو للأسفل بشكل مستمر</td>
+                        <td>لقراءة الإجابات الطويلة بدون لمس الماوس</td>
+                    </tr>
+                    <tr>
+                        <td><kbd>Alt+Left/Right/I/J</kbd></td>
+                        <td><span class="tag tag-nav">التمرير والحركة</span></td>
+                        <td>تحريك مكان النافذة بدقة على الشاشة</td>
+                        <td>ضبط موقع الأداة بجانب كاميرا اللابتوب لتثبيت نظرك</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Section 4: Real-world Scenarios -->
+        <section id="scenarios">
+            <div class="section-header">
+                <span class="section-icon">🎯</span>
+                <h2>السيناريوهات العملية وطريقة التصرف (Playbooks)</h2>
+            </div>
+
+            <!-- Scenario 1 -->
+            <div class="scenario-box">
+                <div class="scenario-header active" onclick="toggleScenario(this)">
+                    <div class="scenario-title">
+                        <span>🎓</span>
+                        <span>السيناريو الأول: مقابلة شفوية لمنحة جامعية أو وظيفة (Oral Conceptual Exam)</span>
+                    </div>
+                    <span>▼</span>
+                </div>
+                <div class="scenario-content show">
+                    <p><strong>الهدف:</strong> الحصول على إجابة صوتية فورية ومباشرة بدون تأخير زمني وتناسب مستوى الطالب (مثل منحة Open Doors الروسية لمرحلة البكالوريوس).</p>
+                    <ol class="step-list">
+                        <li><strong>إعدادات التفكير والسرعة:</strong> في تبويب <code>AI Setup</code>، اجعل خيار <strong>Thinking</strong> على <code>Off</code> (أو Low) وخيار <strong>Web Search</strong> على <code>Off</code>. هذا يضمن إجابة فورية خلال ثانية واحدة!</li>
+                        <li><strong>التعليمات المخصصة:</strong> في خانة <em>Custom AI Instructions</em>، اكتب: <em>"اشرح المفهوم بأسلوب واضح ومباشر في نقاط محددة تحت دقيقتين مع مثال برمجي بسيط بالبايثون وبصفة طالب بكالوريوس"</em>.</li>
+                        <li><strong>أثناء السؤال:</strong> عندما يسألك المقابل (مثلاً: <em>What is the difference between Linear and Binary Search?</em>)، استمع بهدوء. بمجرد توقفه لثانية ونصف، ستظهر الإجابة المنظمة فوراً على شاشتك.</li>
+                        <li><strong>إلقاء الإجابة:</strong> اقرأ النقاط بأسلوبك الطبيعي كأنك تفكر بصوت عالٍ.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Scenario 2 -->
+            <div class="scenario-box">
+                <div class="scenario-header" onclick="toggleScenario(this)">
+                    <div class="scenario-title">
+                        <span>💻</span>
+                        <span>السيناريو الثاني: اختبار برمجي لايف وسكرين شوت (LeetCode / Live Coding Problem)</span>
+                    </div>
+                    <span>▼</span>
+                </div>
+                <div class="scenario-content">
+                    <p><strong>الهدف:</strong> قراءة مسألة خوارزميات معقدة من منصة الاختبار (HackerRank / LeetCode / Codility) وإخراج الحل الأمثل مع التعقيد الزمني (Time & Space Complexity).</p>
+                    <ol class="step-list">
+                        <li><strong>تفعيل الرؤية:</strong> اضغط <kbd>Alt+V</kbd> لتفعيل طبقة الرؤية.</li>
+                        <li><strong>التقاط المسألة:</strong> اضغط <kbd>Alt+S</kbd> لأخذ لقطة لنص المسألة، وإذا كانت المسألة طويلة أو تحتوي أمثلة في الأسفل، مرر الشاشة واضغط <kbd>Alt+S</kbd> مرة أخرى لضمها للرتل.</li>
+                        <li><strong>تحليل الكود:</strong> اضغط <kbd>Alt+P</kbd>. سيقوم الذكاء الاصطناعي بقراءة الصور وعرض: فهم المسألة، استراتيجية الحل، كود نظيف باللغة المختارة (مثل C++ أو Python)، والتعقيد الزمني والحالات الحدية (Edge Cases).</li>
+                        <li><strong>تفريغ الرتل:</strong> بعد الانتهاء اضغط <kbd>Alt+R</kbd> لتفريغ الصور والاستعداد للمسألة التالية.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Scenario 3 -->
+            <div class="scenario-box">
+                <div class="scenario-header" onclick="toggleScenario(this)">
+                    <div class="scenario-title">
+                        <span>⚡</span>
+                        <span>السيناريو الثالث: أسئلة الاختيار من متعدد السريعة (MCQs & Quizzes)</span>
+                    </div>
+                    <span>▼</span>
+                </div>
+                <div class="scenario-content">
+                    <p><strong>الهدف:</strong> معرفة الخيار الصحيح في اختبارات الـ MCQ بسرعة قصوى مع تعليل مقتضب.</p>
+                    <ol class="step-list">
+                        <li>اضغط <kbd>Alt+S</kbd> لأخذ لقطة شاشة لسؤال الـ MCQ مع خياراته الأربعة.</li>
+                        <li>اضغط <kbd>Alt+P</kbd> مباشرة.</li>
+                        <li>الموديل مدرب تلقائياً لاكتشاف الـ MCQs وإعطاء: <strong>الخيار الصحيح فوراً في السطر الأول</strong> ثم سطرين فقط لتعليل سبب صحة هذا الخيار واستبعاد الخيارات الأخرى.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Scenario 4 -->
+            <div class="scenario-box">
+                <div class="scenario-header" onclick="toggleScenario(this)">
+                    <div class="scenario-title">
+                        <span>🌐</span>
+                        <span>السيناريو الرابع: أسئلة عن أحدث التقنيات والمكتبات الحديثة (Search Grounding)</span>
+                    </div>
+                    <span>▼</span>
+                </div>
+                <div class="scenario-content">
+                    <p><strong>الهدف:</strong> الإجابة عن أسئلة تخص إصدارات حديثة جداً (مثل Next.js 15 أو أحدث ميزات Python 3.14/3.15 أو معايير جديدة).</p>
+                    <ol class="step-list">
+                        <li>في تبويب <code>AI Setup</code>، فعل مفتاح <strong>Web Search Grounding</strong> على وضع <code>ON</code>.</li>
+                        <li>عند طرح السؤال، يقوم الموديل بالبحث في فهرس قوقل المباشر وجلب الحقائق المحدثة مع روابط التوثيق، مما يمنع الهلوسة (Hallucination) نهائياً.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Troubleshooting & Emergency -->
+        <section id="emergency">
+            <div class="section-header">
+                <span class="section-icon">🚨</span>
+                <h2>دليل الطوارئ وفك التعليق (Emergency Protocol)</h2>
+            </div>
+
+            <div class="grid-2">
+                <div class="card accent-rose">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">⏱️</span>
+                        <h3>إذا تأخرت الإجابة أو علق الموديل على "Listening..."</h3>
+                    </div>
+                    <p>إذا كان هناك ضجيج في المايكروفون أو علق الموديل على سؤال طويل لا تحتاجه:</p>
+                    <div class="alert alert-danger">
+                        <strong>الحل الفوري:</strong> اضغط <kbd>Alt+O</kbd>.
+                    </div>
+                    <p>يقوم هذا الاختصار بإلغاء مهمة الذكاء الاصطناعي الحالية فوراً (`cancel`) وتصفير النص المستمع، ويعود المايكروفون للاستماع النظيف في نصف ثانية.</p>
+                </div>
+
+                <div class="card accent-amber">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">❄️</span>
+                        <h3>إذا تجمد البرنامج أو واجهة الويندوز تماماً (App Freeze)</h3>
+                    </div>
+                    <p>إذا انقطع الإنترنت فجأة أو حدث تجمد في مكتبة العرض:</p>
+                    <div class="alert alert-warning">
+                        <strong>الحل الفوري:</strong> اضغط <kbd>Alt+Shift+R</kbd>.
+                    </div>
+                    <p>يقوم هذا الاختصار بقتل العملية المتجمدة وإطلاق نسخة جديدة ونظيفة فوراً من التطبيق في الخلفية، ويسترجع كافة الإعدادات والملف الشخصي تلقائياً من الملف المحفوظ `user_profile.json`.</p>
+                </div>
+
+                <div class="card accent-cyan">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">🔑</span>
+                        <h3>إذا واجهت خطأ نفاذ الحصة (429 Rate Limit)</h3>
+                    </div>
+                    <p>الأداة مجهزة بنظام <strong>Round-Robin Key Rotation</strong> تلقائي:</p>
+                    <div class="alert alert-info">
+                        يقوم بالتبديل الفوري بين المفاتيح الموجودة في <code>ai_providers.json</code> دون أي تأخير، أو يمكنك ضغط <kbd>Alt+E</kbd> لاختيار أفضل مزود بديل فوراً.
+                    </div>
+                </div>
+
+                <div class="card accent-emerald">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">🎤</span>
+                        <h3>كتم صوتك أثناء التحدث مع المقابل</h3>
+                    </div>
+                    <p>إذا أردت التحدث بحرية دون أن ترسل الأداة كلامك للموديل لتوليد إجابات:</p>
+                    <div class="alert alert-success">
+                        اضغط <kbd>Alt+M</kbd> لكتم المايكروفون الخاص بالتطبيق، أو <kbd>Alt+U</kbd> للإيقاف العام المؤقت.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Pro Tips -->
+        <section id="pro-tips">
+            <div class="section-header">
+                <span class="section-icon">💡</span>
+                <h2>نصائح ذهبية لمقابلة ناجحة ومثالية</h2>
+            </div>
+
+            <div class="grid-3">
+                <div class="card">
+                    <h4>👀 تثبيت نظرك نحو الكاميرا</h4>
+                    <p>حرك نافذة الأداة باستخدام <kbd>Alt+I</kbd> و <kbd>Alt+Left/Right</kbd> واجعلها في أعلى منتصف الشاشة مباشرة تحت كاميرا اللابتوب. عندما تقرأ الإجابة، سيبدو للطرف الآخر أنك تنظر في عينيه مباشرة!</p>
+                </div>
+                <div class="card">
+                    <h4>🚫 لا تستخدم الماوس أبداً</h4>
+                    <p>معظم برامج المراقبة الحديثة تكتشف مغادرة الماوس لنافذة الامتحان (Focus Lost). احفظ الاختصارات الرئيسية (<kbd>Alt+O</kbd>، <kbd>Alt+S</kbd>، <kbd>Alt+P</kbd>، <kbd>Alt+X</kbd>) للتحكم الكامل بدون لمس الماوس.</p>
+                </div>
+                <div class="card">
+                    <h4>⚡ اجعل الإجابات شفوية</h4>
+                    <p>في المقابلات الشفوية، لا تسرد كوداً كاملاً بصوتك، بل اطلب من الموديل في <em>Custom Instructions</em> أن يركز على المبدأ (Concept)، المفارقة (Trade-off)، والتعقيد (Complexity).</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>Aura-AI Professional Stealth Interview Assistant • All Rights Reserved &copy; 2026</p>
+            <p style="margin-top: 6px; font-size: 0.8rem;">تم إنشاء هذا الدليل ليعمل محلياً بالكامل وبدون الحاجة لأي اتصال بالإنترنت.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Interactive Collapsible Scenarios
+        function toggleScenario(header) {
+            header.classList.toggle('active');
+            const content = header.nextElementSibling;
+            content.classList.toggle('show');
+            const arrow = header.querySelector('span:last-child');
+            if (arrow) {
+                arrow.textContent = content.classList.contains('show') ? '▲' : '▼';
+            }
+        }
+
+        // Live Search Filter for Hotkeys, Features, and Text
+        document.getElementById('guide-search').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.card');
+            const tableRows = document.querySelectorAll('.hotkey-table tbody tr');
+            const scenarioBoxes = document.querySelectorAll('.scenario-box');
+
+            if (!query) {
+                cards.forEach(c => c.style.display = '');
+                tableRows.forEach(r => r.style.display = '');
+                scenarioBoxes.forEach(s => s.style.display = '');
+                return;
+            }
+
+            // Filter Hotkey Table Rows
+            tableRows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+
+            // Filter Feature Cards
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(query) ? '' : 'none';
+            });
+
+            // Filter Scenarios
+            scenarioBoxes.forEach(box => {
+                const text = box.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    box.style.display = '';
+                    const content = box.querySelector('.scenario-content');
+                    if (content) content.classList.add('show');
+                } else {
+                    box.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
