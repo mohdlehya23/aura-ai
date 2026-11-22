@@ -36,6 +36,10 @@ def build_unlimited_candidate_profile(persistent_context: dict, include_personal
     if include_personal_details and persistent_context.get('complete_job_description'):
         profile_parts.append(f"COMPLETE JOB DESCRIPTION/REQUIREMENTS:\n{persistent_context['complete_job_description']}")
     
+    # Candidate custom instructions
+    if persistent_context.get('custom_instructions'):
+        profile_parts.append(f"CANDIDATE'S CUSTOM INSTRUCTIONS FOR AI:\n{persistent_context['custom_instructions']}")
+    
     return "\n".join(profile_parts) + "\n" if profile_parts else ""
 
 def get_interview_answer_prompt(question: str, context_manager: PersistentContextManager) -> str:
@@ -133,6 +137,36 @@ GENERAL APPROACH:
             prompt_parts.append("")
         prompt_parts.append("=" * 100)
     
+    # Candidate custom instructions (Highest Priority)
+    custom_instructions = persistent_context.get('custom_instructions', '').strip()
+    if custom_instructions:
+        prompt_parts.append("=" * 100)
+        prompt_parts.append("🎯 CANDIDATE'S CUSTOM INSTRUCTIONS FOR AI (HIGHEST PRIORITY - STRICTLY FOLLOW):")
+        prompt_parts.append(f"You must strictly adapt your response according to the candidate's custom instructions below:\n{custom_instructions}")
+        prompt_parts.append("=" * 100)
+
+    # Thinking & Search guidance directives
+    enable_reasoning = persistent_context.get('enable_reasoning', True)
+    reasoning_effort = persistent_context.get('reasoning_effort', 'medium')
+    enable_web_search = persistent_context.get('enable_web_search', False)
+
+    behavioral_directives = []
+    if not enable_reasoning or reasoning_effort in ['off', 'none']:
+        behavioral_directives.append("⚡ FAST DIRECT MODE: Extended internal thinking is disabled. Output the final structured answer directly and concisely for lowest oral latency.")
+    else:
+        behavioral_directives.append(f"🧠 REASONING MODE ({str(reasoning_effort).upper()}): Think through all edge cases, trade-offs, and complexities before producing the final structured answer.")
+
+    if enable_web_search:
+        behavioral_directives.append("🌐 WEB SEARCH GROUNDING: Web search is enabled. Ground your response in current facts, documentation, and latest technical releases where relevant.")
+    else:
+        behavioral_directives.append("🚫 WEB SEARCH DISABLED: Rely solely on verified foundational computer science, algorithm, and software engineering knowledge without external lookup.")
+
+    if behavioral_directives:
+        prompt_parts.append("⚙️ RUNTIME BEHAVIOR MODE:")
+        for directive in behavioral_directives:
+            prompt_parts.append(f"- {directive}")
+        prompt_parts.append("=" * 100)
+
     # Current question to answer
     prompt_parts.append("🎯 CURRENT QUESTION TO ANSWER:")
     prompt_parts.append(f'"{question}"')
@@ -382,6 +416,11 @@ Give a brief, professional answer.
     if resume and settings.PERSONALIZE_ANSWERS:
         resume_preview = resume[:1200] + "..." if len(resume) > 1200 else resume
         profile_parts.append(f"Key background highlights: {resume_preview}")
+    
+    # Include candidate custom instructions
+    custom_instructions = persistent_context.get('custom_instructions', '').strip()
+    if custom_instructions:
+        profile_parts.append(f"CUSTOM CANDIDATE INSTRUCTIONS FOR AI (STRICT):\n{custom_instructions}")
     
     profile_context = "\n".join(profile_parts) if profile_parts else ""
     

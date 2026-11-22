@@ -320,9 +320,14 @@ export class WebSocketHandler {
             aiProvider: {
                 provider: state.selectedProvider.name,
                 model: state.selectedProvider.model,
-                reasoningEffort: state.reasoningEffort || 'medium'
+                reasoningEffort: state.reasoningEffort || 'medium',
+                enableReasoning: state.enableReasoning !== undefined ? state.enableReasoning : (state.reasoningEffort !== 'off'),
+                enableWebSearch: Boolean(state.enableWebSearch)
             },
             reasoningEffort: state.reasoningEffort || 'medium',
+            enableReasoning: state.enableReasoning !== undefined ? state.enableReasoning : (state.reasoningEffort !== 'off'),
+            enableWebSearch: Boolean(state.enableWebSearch),
+            customInstructions: state.customInstructions || state.onboardingData?.customInstructions || '',
             onboardingData: { ...state.onboardingData, selectedLanguages: state.selectedLanguages },
             is_muted: initialMuteStatus.microphone,
             is_universally_muted: initialMuteStatus.universal,

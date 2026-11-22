@@ -76,6 +76,12 @@
                         <textarea id="user-objectives"
                             placeholder="Paste the job description or key requirements here to give the AI context."></textarea>
                     </fieldset>
+                    <fieldset>
+                        <legend>🎯 Custom AI Instructions (تعليمات مخصصة للموديل)</legend>
+                        <textarea id="user-instructions"
+                            placeholder="Explain to the AI how to answer questions (e.g., 'Answer in concise bullet points', 'Keep explanations under 2 minutes', 'Explain concepts from first principles with simple analogies', 'Speak as an undergraduate student', 'Respond in Arabic if the interviewer speaks Arabic')."></textarea>
+                        <small class="config-hint">These instructions take highest priority and guide the AI's tone, persona, brevity, and format for all questions.</small>
+                    </fieldset>
                 </div>
 
                 <!-- Tab 2: AI Setup -->
@@ -111,16 +117,48 @@
                                     interview</small>
                             </div>
 
-                            <div class="ai-config-effort" style="margin-top: 15px;">
-                                <h4>Thinking / Reasoning Effort</h4>
-                                <div class="ai-config-group">
-                                    <select id="reasoning-effort-select" aria-label="Thinking / Reasoning Effort">
-                                        <option value="medium" selected>Medium (Balanced - Default)</option>
-                                        <option value="low">Low (Fastest response, light thinking)</option>
-                                        <option value="high">High (Deep reasoning, thorough analysis)</option>
-                                    </select>
+                            <!-- Advanced Features: Thinking & Web Search Toggles -->
+                            <div class="ai-feature-toggles">
+                                <!-- Thinking / Reasoning Feature Card -->
+                                <div class="feature-toggle-card">
+                                    <div class="feature-card-header">
+                                        <label for="enable-reasoning-toggle" class="feature-card-label">
+                                            <span class="feature-icon">🧠</span>
+                                            <span>Thinking / Reasoning (التفكير)</span>
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" id="enable-reasoning-toggle" checked>
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="ai-config-group feature-select-group">
+                                        <select id="reasoning-effort-select" aria-label="Thinking / Reasoning Effort">
+                                            <option value="off">Off (Zero Thinking Latency ⚡)</option>
+                                            <option value="low">Low (Light thinking, fast response)</option>
+                                            <option value="medium" selected>Medium (Balanced - Default)</option>
+                                            <option value="high">High (Deep reasoning & analysis)</option>
+                                        </select>
+                                    </div>
+                                    <small class="config-hint">Turn OFF for ultra-fast (0.5s–1.5s) answers during live oral interviews, or adjust depth (Low / Medium / High).</small>
                                 </div>
-                                <small class="config-hint">Controls thinking depth for Gemini 3.8 and reasoning models (Low / Medium / High)</small>
+
+                                <!-- Web Search Grounding Feature Card -->
+                                <div class="feature-toggle-card">
+                                    <div class="feature-card-header">
+                                        <label for="enable-web-search-toggle" class="feature-card-label">
+                                            <span class="feature-icon">🌐</span>
+                                            <span>Web Search (البحث في الويب)</span>
+                                        </label>
+                                        <label class="switch">
+                                            <input type="checkbox" id="enable-web-search-toggle">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="feature-status-banner">
+                                        Status: <span id="web-search-badge" class="search-badge-off">Off (Internal Knowledge Only)</span>
+                                    </div>
+                                    <small class="config-hint">Turn ON to ground answers in live Google web search for current facts, library docs, or latest releases.</small>
+                                </div>
                             </div>
 
                             <div class="preset-info">

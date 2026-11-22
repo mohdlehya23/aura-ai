@@ -25,6 +25,9 @@ export class StateManager {
             },
             selectedLanguages: [],
             reasoningEffort: 'medium',
+            enableReasoning: true,
+            enableWebSearch: false,
+            customInstructions: '',
             currentPreset: null,
             availablePresets: [],
             systemStatus: null,
@@ -58,6 +61,7 @@ export class StateManager {
             resume: document.getElementById('user-resume'),
             focusCheckboxes: document.querySelectorAll('input[name="focus"]'),
             objectives: document.getElementById('user-objectives'),
+            instructions: document.getElementById('user-instructions'),
             providerSelect: document.getElementById('ai-provider-select'),
             modelSelect: document.getElementById('ai-model-select'),
             secondaryProviderSelect: document.getElementById('ai-secondary-provider-select'),
@@ -66,7 +70,9 @@ export class StateManager {
             visionModelSelect: document.getElementById('vision-model-select'),
             visionSecondaryProviderSelect: document.getElementById('vision-secondary-provider-select'),
             visionSecondaryModelSelect: document.getElementById('vision-secondary-model-select'),
+            enableReasoningToggle: document.getElementById('enable-reasoning-toggle'),
             reasoningEffortSelect: document.getElementById('reasoning-effort-select'),
+            enableWebSearchToggle: document.getElementById('enable-web-search-toggle'),
             languageCheckboxes: document.querySelectorAll('input[name="language"]'),
         };
     }
@@ -154,6 +160,11 @@ export class StateManager {
             .filter(cb => cb.checked)
             .map(cb => cb.value);
 
+        const customInstructions = this.onboardingForm.instructions?.value?.trim() || '';
+        const enableReasoning = this.onboardingForm.enableReasoningToggle ? this.onboardingForm.enableReasoningToggle.checked : true;
+        const reasoningEffort = this.onboardingForm.reasoningEffortSelect?.value || 'medium';
+        const enableWebSearch = this.onboardingForm.enableWebSearchToggle ? this.onboardingForm.enableWebSearchToggle.checked : false;
+
         this.appState.onboardingData = {
             name: this.onboardingForm.name?.value || '',
             company: this.onboardingForm.company?.value || '',
@@ -161,7 +172,16 @@ export class StateManager {
             resume: this.onboardingForm.resume?.value || '',
             focus: focus,
             objectives: this.onboardingForm.objectives?.value || '',
+            customInstructions: customInstructions,
+            enableReasoning: enableReasoning,
+            reasoningEffort: reasoningEffort,
+            enableWebSearch: enableWebSearch
         };
+
+        this.appState.customInstructions = customInstructions;
+        this.appState.enableReasoning = enableReasoning;
+        this.appState.reasoningEffort = reasoningEffort;
+        this.appState.enableWebSearch = enableWebSearch;
 
         this.appState.selectedProvider.name = this.onboardingForm.providerSelect?.value || null;
         this.appState.selectedProvider.model = this.onboardingForm.modelSelect?.value || null;

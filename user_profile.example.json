@@ -1,0 +1,26 @@
+{
+  "name": "Jane Doe",
+  "company": "Google",
+  "role": "Senior Software Engineer",
+  "resume": "Experienced backend engineer specializing in distributed systems, Go, Python, and cloud infrastructure.",
+  "focus": [
+    "system-design",
+    "dsa",
+    "coding"
+  ],
+  "objectives": "Focus on high-availability systems, distributed caching, database indexing, and scalability.",
+  "customInstructions": "Explain concepts from first principles with clear, concise bullet points under 2 minutes. Provide practical code snippets and speak directly as the candidate. Answer in the same language as the interviewer.",
+  "primaryProvider": "Gemini",
+  "primaryModel": "gemini-2.5-flash",
+  "secondaryProvider": "",
+  "secondaryModel": "",
+  "visionProvider": "Gemini",
+  "visionModel": "gemini-2.5-flash",
+  "visionSecondaryProvider": "",
+  "visionSecondaryModel": "",
+  "enableReasoning": true,
+  "reasoningEffort": "medium",
+  "enableWebSearch": false,
+  "languages": [],
+  "preferredMic": "default"
+}

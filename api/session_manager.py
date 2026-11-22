@@ -63,13 +63,35 @@ class InterviewSession:
             secondary_vision_config = payload.get('visionSecondaryProvider')
             onboarding_context = payload.get('onboardingData', {})
             reasoning_effort = payload.get('reasoningEffort') or (primary_provider_config.get('reasoningEffort') if isinstance(primary_provider_config, dict) else 'medium') or 'medium'
+            enable_reasoning = payload.get('enableReasoning')
+            if enable_reasoning is None:
+                enable_reasoning = reasoning_effort not in ['off', 'none']
+            enable_web_search = bool(payload.get('enableWebSearch', False))
+            custom_instructions = payload.get('customInstructions') or onboarding_context.get('customInstructions', '')
+            if custom_instructions and 'custom_instructions' not in onboarding_context:
+                onboarding_context['custom_instructions'] = custom_instructions
+            onboarding_context['enable_reasoning'] = enable_reasoning
+            onboarding_context['reasoning_effort'] = reasoning_effort
+            onboarding_context['enable_web_search'] = enable_web_search
             
             self.state["is_muted"] = payload.get('is_muted', False)
             self.state["process_all_speakers"] = payload.get('process_all_speakers', True)
             self.state["is_universally_muted"] = payload.get('is_universally_muted', False)
             self.state["reasoning_effort"] = reasoning_effort
+            self.state["enable_reasoning"] = enable_reasoning
+            self.state["enable_web_search"] = enable_web_search
+            self.state["custom_instructions"] = custom_instructions
 
-            await self.initialize_managers(primary_provider_config, secondary_provider_config, primary_vision_config, secondary_vision_config, onboarding_context, reasoning_effort=reasoning_effort)
+            await self.initialize_managers(
+                primary_provider_config,
+                secondary_provider_config,
+                primary_vision_config,
+                secondary_vision_config,
+                onboarding_context,
+                reasoning_effort=reasoning_effort,
+                enable_reasoning=enable_reasoning,
+                enable_web_search=enable_web_search
+            )
             
             current_preset = self.llm_manager.get_current_preset_info()
             health_results = await self.llm_manager.perform_health_checks()
@@ -108,12 +130,26 @@ class InterviewSession:
             self.state["process_all_speakers"] = payload['processAllSpeakers']
         if 'isUniversallyMuted' in payload:
             self.state["is_universally_muted"] = payload['isUniversallyMuted']
-        if 'reasoningEffort' in payload:
-            effort = payload['reasoningEffort']
+        if 'reasoningEffort' in payload or 'enableReasoning' in payload:
+            effort = payload.get('reasoningEffort', self.state.get("reasoning_effort", "medium"))
+            enable_reasoning = payload.get('enableReasoning')
+            if enable_reasoning is None:
+                enable_reasoning = effort not in ['off', 'none']
             self.state["reasoning_effort"] = effort
+            self.state["enable_reasoning"] = enable_reasoning
             if self.llm_manager:
                 self.llm_manager.set_reasoning_effort(effort)
             vision_service.set_reasoning_effort(effort)
+        if 'enableWebSearch' in payload:
+            enable_search = bool(payload['enableWebSearch'])
+            self.state["enable_web_search"] = enable_search
+            if self.llm_manager:
+                self.llm_manager.set_web_search(enable_search)
+        if 'customInstructions' in payload:
+            custom_inst = str(payload['customInstructions'])
+            self.state["custom_instructions"] = custom_inst
+            if self.llm_manager:
+                self.llm_manager.set_custom_instructions(custom_inst)
         await self._send_json("config_updated", self.state)
 
     async def handle_switch_preset(self, payload: dict):
@@ -208,13 +244,15 @@ class InterviewSession:
         await self._send_json("session_reset_complete", {"status": "ok"})
         print(f"✅ Session {self.session_id}: Context has been reset.")
 
-    async def initialize_managers(self, primary_provider_config, secondary_provider_config, primary_vision_config, secondary_vision_config, onboarding_context, reasoning_effort="medium"):
+    async def initialize_managers(self, primary_provider_config, secondary_provider_config, primary_vision_config, secondary_vision_config, onboarding_context, reasoning_effort="medium", enable_reasoning=True, enable_web_search=False):
         """Initializes all necessary managers for the session."""
         self.llm_manager = MultiLLMManager()
         config_loaded = self.llm_manager.load_configuration(
             primary_config=primary_provider_config,
             secondary_config=secondary_provider_config,
-            reasoning_effort=reasoning_effort
+            reasoning_effort=reasoning_effort,
+            enable_reasoning=enable_reasoning,
+            enable_web_search=enable_web_search
         )
         if not config_loaded:
             raise ValueError("Failed to load AI provider configuration.")

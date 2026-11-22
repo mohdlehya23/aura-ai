@@ -11,12 +11,15 @@ from core.key_utils import usable_keys
 class VisionManager:
     """Vision AI Manager for screenshot analysis and code problem solving"""
     
-    def __init__(self, provider_name: str, base_url: str, api_key: str, model_name: str, request_params: Optional[Dict[str, Any]] = None, api_keys: Optional[List[str]] = None, reasoning_effort: Optional[str] = "medium"):
+    def __init__(self, provider_name: str, base_url: str, api_key: str, model_name: str, request_params: Optional[Dict[str, Any]] = None, api_keys: Optional[List[str]] = None, reasoning_effort: Optional[str] = "medium", enable_reasoning: Optional[bool] = True):
         self.provider_name = provider_name
         self.model_name = model_name
         self.base_url = base_url
         self.request_params = request_params or {}
         self.reasoning_effort = reasoning_effort or "medium"
+        self.enable_reasoning = enable_reasoning if enable_reasoning is not None else (self.reasoning_effort not in ["off", "none"])
+        if self.reasoning_effort in ["off", "none"]:
+            self.enable_reasoning = False
         self.is_healthy = True
         self.last_error = None
         self.error_count = 0
@@ -121,9 +124,9 @@ class VisionManager:
                     "top_p": 0.95
                 }
 
-                # Add reasoning_effort for providers/models that support thinking levels (Gemini, OpenRouter, OpenAI)
-                if self.provider_name in ["Gemini", "OpenRouter", "OpenAI"] or "gemini" in self.model_name.lower():
-                    if self.reasoning_effort in ["low", "medium", "high"]:
+                # Add reasoning_effort ONLY when thinking is enabled and level is low/medium/high
+                if self.enable_reasoning and self.reasoning_effort in ["low", "medium", "high"]:
+                    if self.provider_name in ["Gemini", "OpenRouter", "OpenAI"] or "gemini" in self.model_name.lower():
                         api_params["reasoning_effort"] = self.reasoning_effort
 
                 # Add provider-specific routing if available
@@ -235,11 +238,12 @@ class VisionService:
 
     def set_reasoning_effort(self, effort: str):
         """Update reasoning effort level across all active vision managers."""
-        if effort in ["low", "medium", "high"]:
-            self.reasoning_effort = effort
-            for manager in self.active_vision_providers.values():
-                manager.reasoning_effort = effort
-            print(f"🧠 Vision reasoning effort set to: {effort}")
+        self.reasoning_effort = effort
+        enable_reasoning = effort not in ["off", "none"]
+        for manager in self.active_vision_providers.values():
+            manager.reasoning_effort = effort
+            manager.enable_reasoning = enable_reasoning
+        print(f"🧠 Vision reasoning effort set to: {effort} (enabled={enable_reasoning})")
 
     def _create_vision_manager(self, provider_name: str, model_name: str, reasoning_effort: Optional[str] = "medium") -> Optional[VisionManager]:
         """Create and return a vision manager for a given provider and model."""
@@ -251,7 +255,7 @@ class VisionService:
                 if provider_config["name"] == provider_name:
                     # Find the model configuration, supporting both string and dict formats
                     model_config = self._get_vision_model_config(provider_config, model_name)
-                    
+                    effort = reasoning_effort or getattr(self, 'reasoning_effort', 'medium')
                     manager = VisionManager(
                         provider_name=provider_name,
                         base_url=provider_config["baseURL"],
@@ -259,7 +263,8 @@ class VisionService:
                         model_name=model_config["modelName"],
                         request_params=model_config.get("requestParams"),
                         api_keys=provider_config.get("apiKeys"),
-                        reasoning_effort=reasoning_effort or self.reasoning_effort
+                        reasoning_effort=effort,
+                        enable_reasoning=(effort not in ["off", "none"])
                     )
                     if self.context_manager:
                         manager.set_context_manager(self.context_manager)
@@ -332,6 +337,11 @@ class VisionService:
                 language_context = f"**Primary Programming Language (default for coding tasks):** {primary_language}\\n"
         else:
             language_context = f"**Primary Programming Language (default for coding tasks):** {primary_language}\\n"
+
+        if self.context_manager:
+            custom_inst = self.context_manager.persistent_context.get('custom_instructions', '').strip()
+            if custom_inst:
+                language_context += f"**CANDIDATE'S CUSTOM INSTRUCTIONS (STRICTLY FOLLOW):** {custom_inst}\\n"
 
         # Conditional SQL instructions for coding problems
         sql_instructions_for_coding = ""

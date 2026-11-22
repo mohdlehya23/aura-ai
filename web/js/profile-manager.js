@@ -25,6 +25,7 @@ export class ProfileManager {
             role: document.getElementById('user-role'),
             resume: document.getElementById('user-resume'),
             objectives: document.getElementById('user-objectives'),
+            instructions: document.getElementById('user-instructions'),
             providerSelect: document.getElementById('ai-provider-select'),
             modelSelect: document.getElementById('ai-model-select'),
             secondaryProviderSelect: document.getElementById('ai-secondary-provider-select'),
@@ -33,7 +34,10 @@ export class ProfileManager {
             visionModelSelect: document.getElementById('vision-model-select'),
             visionSecondaryProviderSelect: document.getElementById('vision-secondary-provider-select'),
             visionSecondaryModelSelect: document.getElementById('vision-secondary-model-select'),
+            enableReasoningToggle: document.getElementById('enable-reasoning-toggle'),
             reasoningEffortSelect: document.getElementById('reasoning-effort-select'),
+            enableWebSearchToggle: document.getElementById('enable-web-search-toggle'),
+            webSearchBadge: document.getElementById('web-search-badge'),
             micSelect: document.getElementById('mic-select'),
             statusBadge: document.getElementById('auto-save-status')
         };
@@ -53,6 +57,7 @@ export class ProfileManager {
             resume: this.elements.resume?.value || '',
             focus: focusCheckboxes,
             objectives: this.elements.objectives?.value || '',
+            customInstructions: this.elements.instructions?.value || '',
             primaryProvider: this.elements.providerSelect?.value || '',
             primaryModel: this.elements.modelSelect?.value || '',
             secondaryProvider: this.elements.secondaryProviderSelect?.value || '',
@@ -61,7 +66,9 @@ export class ProfileManager {
             visionModel: this.elements.visionModelSelect?.value || '',
             visionSecondaryProvider: this.elements.visionSecondaryProviderSelect?.value || '',
             visionSecondaryModel: this.elements.visionSecondaryModelSelect?.value || '',
+            enableReasoning: this.elements.enableReasoningToggle ? this.elements.enableReasoningToggle.checked : true,
             reasoningEffort: this.elements.reasoningEffortSelect?.value || 'medium',
+            enableWebSearch: this.elements.enableWebSearchToggle ? this.elements.enableWebSearchToggle.checked : false,
             languages: languageCheckboxes,
             preferredMic: this.elements.micSelect?.value || ''
         };
@@ -115,6 +122,9 @@ export class ProfileManager {
         if (profile.role && this.elements.role) this.elements.role.value = profile.role;
         if (profile.resume && this.elements.resume) this.elements.resume.value = profile.resume;
         if (profile.objectives && this.elements.objectives) this.elements.objectives.value = profile.objectives;
+        if ((profile.customInstructions || profile.instructions) && this.elements.instructions) {
+            this.elements.instructions.value = profile.customInstructions || profile.instructions || '';
+        }
 
         // Populate focus checkboxes
         if (Array.isArray(profile.focus) && profile.focus.length > 0) {
@@ -132,13 +142,43 @@ export class ProfileManager {
             });
         }
 
-        // Populate reasoning effort
-        if (profile.reasoningEffort && this.elements.reasoningEffortSelect) {
-            this.elements.reasoningEffortSelect.value = profile.reasoningEffort;
+        // Populate reasoning effort and toggle
+        const reasoningEffort = profile.reasoningEffort || 'medium';
+        const isReasoningEnabled = profile.enableReasoning !== undefined 
+            ? Boolean(profile.enableReasoning) 
+            : (reasoningEffort !== 'off');
+
+        if (this.elements.enableReasoningToggle) {
+            this.elements.enableReasoningToggle.checked = isReasoningEnabled;
         }
+
+        if (this.elements.reasoningEffortSelect) {
+            this.elements.reasoningEffortSelect.value = isReasoningEnabled ? (reasoningEffort === 'off' ? 'medium' : reasoningEffort) : 'off';
+        }
+
+        // Populate web search toggle and status badge
+        const isWebSearchEnabled = Boolean(profile.enableWebSearch);
+        if (this.elements.enableWebSearchToggle) {
+            this.elements.enableWebSearchToggle.checked = isWebSearchEnabled;
+        }
+        this.updateWebSearchBadge(isWebSearchEnabled);
 
         if (profile.name || profile.resume) {
             this.showSaveStatus('💾 Loaded saved profile', 'success');
+        }
+    }
+
+    /**
+     * Updates the status text and visual indicator for Web Search Grounding.
+     */
+    updateWebSearchBadge(enabled) {
+        if (!this.elements.webSearchBadge) return;
+        if (enabled) {
+            this.elements.webSearchBadge.textContent = 'ON (Google Real-Time Search Grounding 🌐)';
+            this.elements.webSearchBadge.className = 'search-badge-on';
+        } else {
+            this.elements.webSearchBadge.textContent = 'Off (Internal Knowledge Only)';
+            this.elements.webSearchBadge.className = 'search-badge-off';
         }
     }
 
@@ -358,7 +398,8 @@ export class ProfileManager {
             this.elements.company,
             this.elements.role,
             this.elements.resume,
-            this.elements.objectives
+            this.elements.objectives,
+            this.elements.instructions
         ];
 
         textInputs.forEach(el => {
@@ -366,6 +407,32 @@ export class ProfileManager {
             el.addEventListener('input', () => this.triggerDebouncedSave());
             el.addEventListener('change', () => this.saveProfile(null, true));
         });
+
+        // Thinking / Extended Reasoning switch listener
+        if (this.elements.enableReasoningToggle) {
+            this.elements.enableReasoningToggle.addEventListener('change', (e) => {
+                const isEnabled = e.target.checked;
+                if (!isEnabled) {
+                    if (this.elements.reasoningEffortSelect) {
+                        this.elements.reasoningEffortSelect.value = 'off';
+                    }
+                } else {
+                    if (this.elements.reasoningEffortSelect && this.elements.reasoningEffortSelect.value === 'off') {
+                        this.elements.reasoningEffortSelect.value = 'medium';
+                    }
+                }
+                this.saveProfile(null, true);
+            });
+        }
+
+        // Web Search Grounding switch listener
+        if (this.elements.enableWebSearchToggle) {
+            this.elements.enableWebSearchToggle.addEventListener('change', (e) => {
+                const isEnabled = e.target.checked;
+                this.updateWebSearchBadge(isEnabled);
+                this.saveProfile(null, true);
+            });
+        }
 
         // Checkboxes (focus and language)
         document.querySelectorAll('input[name="focus"], input[name="language"]').forEach(cb => {
@@ -388,6 +455,12 @@ export class ProfileManager {
         selects.forEach(select => {
             if (!select) return;
             select.addEventListener('change', () => {
+                if (select === this.elements.reasoningEffortSelect) {
+                    const isOff = select.value === 'off';
+                    if (this.elements.enableReasoningToggle) {
+                        this.elements.enableReasoningToggle.checked = !isOff;
+                    }
+                }
                 // Short delay so child model dropdowns update first if provider changed
                 setTimeout(() => {
                     this.saveProfile(null, true);

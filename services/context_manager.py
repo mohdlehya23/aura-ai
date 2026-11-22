@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional, Dict, Any, List
 from core.config import settings
 import re
 
@@ -29,7 +30,11 @@ class PersistentContextManager:
             'target_role': '',
             'complete_resume': '',        # UNLIMITED - Full resume
             'complete_job_description': '',  # UNLIMITED - Full job description
+            'custom_instructions': '',    # User custom instructions on how AI should answer
             'focus_areas': [],
+            'enable_reasoning': True,
+            'reasoning_effort': 'medium',
+            'enable_web_search': False,
             'additional_context': {},
             'created_at': None
         }
@@ -44,11 +49,28 @@ class PersistentContextManager:
             'target_role': onboarding_data.get('role', ''),
             'complete_resume': onboarding_data.get('resume', ''),  # FULL CONTENT
             'complete_job_description': onboarding_data.get('objectives', ''),  # FULL CONTENT
+            'custom_instructions': onboarding_data.get('custom_instructions') or onboarding_data.get('instructions') or onboarding_data.get('customInstructions', ''),
             'focus_areas': onboarding_data.get('focus', []),
+            'enable_reasoning': onboarding_data.get('enable_reasoning', onboarding_data.get('enableReasoning', True)),
+            'reasoning_effort': onboarding_data.get('reasoning_effort', onboarding_data.get('reasoningEffort', 'medium')),
+            'enable_web_search': onboarding_data.get('enable_web_search', onboarding_data.get('enableWebSearch', False)),
             'created_at': datetime.now().isoformat()
         })
         self.is_initialized = True
-        print(f"✅ Persistent context initialized with full resume ({len(self.persistent_context['complete_resume'])} chars)")
+        custom_inst_len = len(self.persistent_context['custom_instructions'])
+        print(f"✅ Persistent context initialized with full resume ({len(self.persistent_context['complete_resume'])} chars), custom instructions ({custom_inst_len} chars)")
+
+    def update_settings(self, enable_reasoning: Optional[bool] = None, reasoning_effort: Optional[str] = None, enable_web_search: Optional[bool] = None, custom_instructions: Optional[str] = None):
+        """Dynamically update context settings during an active interview session"""
+        if enable_reasoning is not None:
+            self.persistent_context['enable_reasoning'] = enable_reasoning
+        if reasoning_effort is not None:
+            self.persistent_context['reasoning_effort'] = reasoning_effort
+        if enable_web_search is not None:
+            self.persistent_context['enable_web_search'] = enable_web_search
+        if custom_instructions is not None:
+            self.persistent_context['custom_instructions'] = custom_instructions
+        print(f"⚙️ Persistent context settings updated: reasoning={self.persistent_context['enable_reasoning']} ({self.persistent_context['reasoning_effort']}), search={self.persistent_context['enable_web_search']}")
     
     def add_conversation_exchange(self, interviewer_question: str, candidate_response: str = None, ai_response: str = None):
         """Add conversation exchange - limited to MAX_CONVERSATION_HISTORY most recent"""

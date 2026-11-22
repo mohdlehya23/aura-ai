@@ -12,14 +12,18 @@ import threading
 # --- Enhanced LLMManager Class ---
 
 class LLMManager:
-    """Enhanced LLM Manager with persistent context support and error recovery."""
+    """Enhanced LLM Manager with persistent context support, thinking controls, and web search grounding."""
     
-    def __init__(self, provider_name: str, base_url: str, api_key: str, model_name: str, request_params: Optional[Dict[str, Any]] = None, api_keys: Optional[List[str]] = None, reasoning_effort: Optional[str] = "medium"):
+    def __init__(self, provider_name: str, base_url: str, api_key: str, model_name: str, request_params: Optional[Dict[str, Any]] = None, api_keys: Optional[List[str]] = None, reasoning_effort: Optional[str] = "medium", enable_reasoning: Optional[bool] = True, enable_web_search: Optional[bool] = False):
         self.provider_name = provider_name
         self.model_name = model_name
         self.base_url = base_url
         self.request_params = request_params or {}
         self.reasoning_effort = reasoning_effort or "medium"
+        self.enable_reasoning = enable_reasoning if enable_reasoning is not None else (self.reasoning_effort not in ["off", "none"])
+        if self.reasoning_effort in ["off", "none"]:
+            self.enable_reasoning = False
+        self.enable_web_search = bool(enable_web_search)
         self.context_manager = None  # Will be shared from MultiLLMManager
         self.is_healthy = True
         self.last_error = None
@@ -83,6 +87,62 @@ class LLMManager:
             self.error_count += 1
             return False
 
+    async def _get_gemini_search_grounded_answer(self, prompt: str, stream_callback=None) -> Optional[Tuple[str, Dict[str, Any]]]:
+        """Call official Gemini REST API with googleSearch grounding and key rotation."""
+        import httpx
+        max_attempts = len(self.api_keys)
+        for attempt in range(max_attempts):
+            key = self.api_keys[(self._key_index + attempt) % max_attempts]
+            if not key:
+                continue
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model_name}:generateContent?key={key}"
+            payload = {
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                "tools": [{"googleSearch": {}}],
+                "generationConfig": {
+                    "temperature": 0.3,
+                    "topP": 0.85,
+                    "maxOutputTokens": 8000
+                }
+            }
+            if not self.enable_reasoning or self.reasoning_effort in ["off", "none"]:
+                payload["generationConfig"]["thinkingConfig"] = {"thinkingBudget": 0}
+
+            try:
+                async with httpx.AsyncClient() as http_client:
+                    r = await http_client.post(url, json=payload, timeout=35.0)
+                    if r.status_code == 200:
+                        data = r.json()
+                        candidates = data.get("candidates", [])
+                        if candidates:
+                            parts = candidates[0].get("content", {}).get("parts", [])
+                            text = "".join(p.get("text", "") for p in parts if isinstance(p, dict)).strip()
+                            if text:
+                                if stream_callback:
+                                    try:
+                                        await stream_callback(text, "chunk")
+                                    except Exception:
+                                        pass
+                                return text, {
+                                    "success": True,
+                                    "provider": self.provider_name,
+                                    "model": self.model_name,
+                                    "grounded_search": True,
+                                    "key_rotated": attempt > 0,
+                                    "attempt": attempt + 1,
+                                    "response_time": datetime.now().isoformat()
+                                }
+                    elif r.status_code == 429:
+                        print(f"⚠️ Gemini search grounding key #{attempt} hit 429, rotating...")
+                        continue
+                    else:
+                        print(f"⚠️ Gemini search grounding returned status {r.status_code}: {r.text[:120]}")
+                        break
+            except Exception as e:
+                print(f"⚠️ Gemini search grounding attempt failed: {e}")
+                continue
+        return None
+
     async def get_ai_answer(self, question: str, stream_callback=None) -> Tuple[str, Dict[str, Any]]:
         """Get AI answer with instant key rotation on any error — zero delay retries."""
         if not self.client:
@@ -109,8 +169,22 @@ class LLMManager:
         else:
             prompt = get_quick_response_prompt(question, self.context_manager)
         
-        print(f"🎯 Processing with {self.provider_name}-{self.model_name}: '{question[:100]}...'")
+        print(f"🎯 Processing with {self.provider_name}-{self.model_name}: '{question[:100]}...' [reasoning={self.enable_reasoning} ({self.reasoning_effort}), search={self.enable_web_search}]")
         
+        # 1. If Web Search Grounding is enabled on Gemini, try native Google Search Grounding first
+        if self.enable_web_search and (self.provider_name == "Gemini" or "gemini" in self.model_name.lower()):
+            try:
+                search_res = await self._get_gemini_search_grounded_answer(prompt, stream_callback)
+                if search_res:
+                    answer, result_info = search_res
+                    self.context_manager.add_ai_response(answer, "normal")
+                    self.is_healthy = True
+                    self.error_count = 0
+                    self.last_success_time = datetime.now()
+                    return answer, result_info
+            except Exception as search_err:
+                print(f"⚠️ Search grounding fallback to standard completion: {search_err}")
+
         # Try all available keys — instant retry on any error
         max_attempts = len(self.api_keys)
         last_error = None
@@ -131,10 +205,15 @@ class LLMManager:
                     "max_tokens": 8000
                 }
 
-                # Add reasoning_effort for providers/models that support thinking levels (Gemini, OpenRouter, OpenAI)
-                if self.provider_name in ["Gemini", "OpenRouter", "OpenAI"] or "gemini" in self.model_name.lower():
-                    if self.reasoning_effort in ["low", "medium", "high"]:
+                # Add reasoning_effort ONLY when thinking is enabled and level is low/medium/high
+                if self.enable_reasoning and self.reasoning_effort in ["low", "medium", "high"]:
+                    if self.provider_name in ["Gemini", "OpenRouter", "OpenAI"] or "gemini" in self.model_name.lower():
                         api_params["reasoning_effort"] = self.reasoning_effort
+
+                # Web search grounding on OpenRouter
+                if self.enable_web_search and self.provider_name == "OpenRouter":
+                    if not api_params["model"].endswith(":online"):
+                        api_params["model"] = f"{api_params['model']}:online"
 
                 # Add provider-specific routing if available
                 if self.request_params:
@@ -236,7 +315,7 @@ class LLMManager:
 # --- Multi-LLM Manager Class ---
 
 class MultiLLMManager:
-    """Enhanced LLM Manager supporting multiple providers with shared context and comprehensive error handling"""
+    """Enhanced LLM Manager supporting multiple providers with shared context, thinking control, and web search grounding"""
     
     def __init__(self):
         self.providers: Dict[str, LLMManager] = {}
@@ -248,11 +327,18 @@ class MultiLLMManager:
         self.health_check_interval = 300  # 5 minutes
         self.last_health_check = None
         self.reasoning_effort = "medium"
+        self.enable_reasoning = True
+        self.enable_web_search = False
         
-    def load_configuration(self, primary_config: Dict[str, Any], secondary_config: Optional[Dict[str, Any]] = None, reasoning_effort: Optional[str] = "medium"):
+    def load_configuration(self, primary_config: Dict[str, Any], secondary_config: Optional[Dict[str, Any]] = None, reasoning_effort: Optional[str] = "medium", enable_reasoning: Optional[bool] = True, enable_web_search: Optional[bool] = False):
         """Load primary and optional secondary configurations"""
         try:
             self.reasoning_effort = reasoning_effort or (primary_config.get("reasoning_effort") if isinstance(primary_config, dict) else None) or "medium"
+            self.enable_reasoning = enable_reasoning if enable_reasoning is not None else (self.reasoning_effort not in ["off", "none"])
+            if self.reasoning_effort in ["off", "none"]:
+                self.enable_reasoning = False
+            self.enable_web_search = bool(enable_web_search)
+            
             # Load providers from JSON using high-performance orjson
             with open("ai_providers.json", "rb") as f:
                 providers_config = orjson.loads(f.read())
@@ -281,7 +367,9 @@ class MultiLLMManager:
                 model_name=primary_model_config["modelName"],
                 request_params=primary_model_config.get("requestParams"),
                 api_keys=primary_provider_config.get("apiKeys"),
-                reasoning_effort=self.reasoning_effort
+                reasoning_effort=self.reasoning_effort,
+                enable_reasoning=self.enable_reasoning,
+                enable_web_search=self.enable_web_search
             )
             self.providers["primary"].set_context_manager(self.shared_context)
             
@@ -307,7 +395,9 @@ class MultiLLMManager:
                         model_name=secondary_model_config["modelName"],
                         request_params=secondary_model_config.get("requestParams"),
                         api_keys=secondary_provider_config.get("apiKeys"),
-                        reasoning_effort=self.reasoning_effort
+                        reasoning_effort=self.reasoning_effort,
+                        enable_reasoning=self.enable_reasoning,
+                        enable_web_search=self.enable_web_search
                     )
                     self.providers["secondary"].set_context_manager(self.shared_context)
                     
@@ -324,7 +414,7 @@ class MultiLLMManager:
                 "priority": 0
             }
             
-            print(f"✅ MultiLLMManager initialized with {len(self.providers)} providers")
+            print(f"✅ MultiLLMManager initialized with {len(self.providers)} providers [reasoning={self.enable_reasoning} ({self.reasoning_effort}), search={self.enable_web_search}]")
             print(f"   📋 Available presets: {list(self.presets.keys())}")
             
             return True
@@ -334,12 +424,33 @@ class MultiLLMManager:
             return False
 
     def set_reasoning_effort(self, effort: str):
-        """Update reasoning effort level (low, medium, high) across all providers."""
-        if effort in ["low", "medium", "high"]:
-            self.reasoning_effort = effort
-            for provider in self.providers.values():
-                provider.reasoning_effort = effort
-            print(f"🧠 LLM reasoning effort set to: {effort}")
+        """Update reasoning effort level across all providers."""
+        self.reasoning_effort = effort
+        if effort in ["off", "none"]:
+            self.enable_reasoning = False
+        else:
+            self.enable_reasoning = True
+        for provider in self.providers.values():
+            provider.reasoning_effort = effort
+            provider.enable_reasoning = self.enable_reasoning
+        if self.shared_context:
+            self.shared_context.update_settings(enable_reasoning=self.enable_reasoning, reasoning_effort=effort)
+        print(f"🧠 LLM reasoning effort set to: {effort} (enabled={self.enable_reasoning})")
+
+    def set_web_search(self, enabled: bool):
+        """Update web search grounding setting across all providers."""
+        self.enable_web_search = bool(enabled)
+        for provider in self.providers.values():
+            provider.enable_web_search = self.enable_web_search
+        if self.shared_context:
+            self.shared_context.update_settings(enable_web_search=self.enable_web_search)
+        print(f"🌐 LLM web search set to: {self.enable_web_search}")
+
+    def set_custom_instructions(self, instructions: str):
+        """Update custom instructions across context."""
+        if self.shared_context:
+            self.shared_context.update_settings(custom_instructions=instructions)
+        print(f"📝 Custom instructions updated ({len(instructions)} chars)")
 
     def _get_model_config(self, provider_config: Dict[str, Any], model_identifier: str) -> Dict[str, Any]:
         """Finds model configuration, supporting both string and dict formats."""

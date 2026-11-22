@@ -561,6 +561,141 @@ textarea {
     line-height: 1.4;
 }
 
+/* ===== AI FEATURE TOGGLES (Thinking & Web Search) ===== */
+.ai-feature-toggles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 4px;
+}
+
+@media (max-width: 650px) {
+    .ai-feature-toggles {
+        grid-template-columns: 1fr;
+    }
+}
+
+.feature-toggle-card {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all var(--anim-base);
+}
+
+.feature-toggle-card:first-child {
+    border-left: 3px solid var(--accent-indigo);
+}
+
+.feature-toggle-card:last-child {
+    border-left: 3px solid var(--accent-cyan);
+}
+
+.feature-toggle-card:hover {
+    border-color: var(--border-medium);
+}
+
+.feature-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.feature-card-label {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--text-pure);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.feature-select-group {
+    display: flex;
+    width: 100%;
+}
+
+.feature-select-group select {
+    width: 100%;
+}
+
+.feature-status-banner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    padding: 7px 10px;
+}
+
+.search-badge-off {
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.search-badge-on {
+    color: var(--accent-emerald);
+    font-weight: 700;
+}
+
+/* Modern Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid var(--border-medium);
+    border-radius: 20px;
+    transition: all 0.25s ease;
+}
+
+.slider::before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 2px;
+    background-color: var(--text-pure);
+    border-radius: 50%;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.switch input:checked + .slider {
+    background-color: var(--accent-cyan);
+    border-color: var(--accent-cyan);
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(18px);
+    background-color: #07090e;
+}
+
 /* Hotkey Pills in Preset Info */
 .preset-info {
     background: rgba(99, 102, 241, 0.06);
