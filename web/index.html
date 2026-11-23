@@ -47,6 +47,35 @@
             <div class="tab-content">
                 <!-- Tab 1: Profile -->
                 <div id="profile-tab" class="tab-pane active">
+                    <!-- Multi-Profile Switcher & Management Bar -->
+                    <div class="profile-manager-bar">
+                        <div class="profile-selector-group">
+                            <label for="profile-select" class="profile-selector-label">
+                                <span class="profile-badge-icon">🗂️</span>
+                                <span>Active Profile (الملف الشخصي):</span>
+                            </label>
+                            <div class="profile-select-wrapper">
+                                <select id="profile-select" class="profile-dropdown" aria-label="Select Saved Profile">
+                                    <!-- Populated dynamically via ProfileManager -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="profile-actions-toolbar">
+                            <button type="button" id="btn-new-profile" class="btn-profile-action btn-profile-primary" title="Create a new profile">
+                                <span>➕</span> New Profile
+                            </button>
+                            <button type="button" id="btn-duplicate-profile" class="btn-profile-action" title="Duplicate current profile">
+                                <span>📋</span> Copy
+                            </button>
+                            <button type="button" id="btn-rename-profile" class="btn-profile-action" title="Rename current profile">
+                                <span>✏️</span> Rename
+                            </button>
+                            <button type="button" id="btn-delete-profile" class="btn-profile-action btn-profile-danger" title="Delete current profile">
+                                <span>🗑️</span> Delete
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="onboarding-grid">
                         <fieldset class="grid-span-1">
                             <legend>Candidate Profile <button type="button" id="fill-demo-btn" class="demo-fill-btn"

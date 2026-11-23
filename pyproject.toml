@@ -22,3 +22,4 @@ extraPaths = [
     ".",
     "venv/Lib/site-packages"
 ]
+
